@@ -1,0 +1,29 @@
+CREATE OR REPLACE FUNCTION 
+    tabuada(
+        INOUT val1 numeric, 
+		OUT mult numeric,
+        OUT resultado numeric,
+        OUT tabuada text
+    ) RETURNS SETOF record
+AS
+    $corpo$
+DECLARE
+	_x numeric := 1;
+BEGIN
+	WHILE _x <= 10
+	LOOP
+		resultado := val1 * _x;
+		mult := _x;
+		tabuada := val1 || ' X ' || _x || ' = ' || 	resultado;
+		RETURN next;
+		_x := _x + 1;
+	END LOOP;
+	RETURN;
+END;
+    $corpo$
+LANGUAGE PLPGSQL;
+
+SELECT * FROM tabuada(2);
+
+
+DROP FUNCTION tabuada(numeric);
