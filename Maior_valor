@@ -1,0 +1,30 @@
+CREATE OR REPLACE FUNCTION 
+    maior_valor(
+        val1 numeric, 
+        val2 numeric,
+        out resultado numeric,
+        out explicacao text
+    ) returns record
+AS
+    $corpo$
+BEGIN
+    if 
+        (val1 > val2) 
+    then
+        resultado = val1;
+        explicacao = 'O numero '  ||val1||  ' eh maior que o numero  '  ||val2;
+    elseif 
+        (val2 > val1)
+    then
+        resultado := val2;
+        explicacao = 'O numero '  ||$2||  ' eh maior que numero '  ||$1;
+    else 
+        resultado = val1;
+        explicacao = 'O valor '  ||$1||  ' eh igual a ' || $2;
+    end if;
+    RETURN;
+END;
+    $corpo$
+LANGUAGE PLPGSQL;
+
+SELECT * from maior_valor(90, 90);
