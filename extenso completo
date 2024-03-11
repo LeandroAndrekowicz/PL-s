@@ -1,0 +1,84 @@
+CREATE OR REPLACE FUNCTION extenso3(numero BIGINT) RETURNS TEXT AS $$
+DECLARE
+    unidades TEXT[] := ARRAY[ 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove'];
+    especiais TEXT[] := ARRAY[ 'onze', 'doze', 'treze', 'quatorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove'];
+    dezenas TEXT[] := ARRAY['', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa'];
+    centenas TEXT[] := ARRAY['cento', 'duzentos', 'trezentos', 'quatrocentos', 'quinhentos', 'seiscentos', 'setecentos', 'oitocentos', 'novecentos'];
+    mil TEXT := 'mil';
+    milhoes TEXT := 'milhões';
+    bilhoes TEXT := 'bilhões';
+    extenso_texto TEXT := '';
+    numero_str TEXT := numero::TEXT;
+BEGIN
+    IF numero = 0 THEN
+        RETURN 'zero';
+    END IF;
+    
+    IF numero >= 1000000000 THEN
+        IF numero >= 2000000000 THEN
+            extenso_texto := extenso_texto || extenso3(numero / 1000000000) || ' ' || bilhoes;
+        ELSE
+            extenso_texto := extenso_texto || 'um ' || bilhoes;
+        END IF;
+        numero := numero % 1000000000;
+    END IF;
+
+    IF numero >= 1000000 THEN
+        IF numero >= 2000000 THEN
+            extenso_texto := extenso_texto || ' ' || extenso3(numero / 1000000) || ' ' || milhoes;
+        ELSE
+            IF numero % 1000000 = 0 THEN
+                extenso_texto := extenso_texto || ' um ' || milhoes;
+            ELSE
+                extenso_texto := extenso_texto || ' ' || milhoes || ' e ';
+            END IF;
+        END IF;
+        numero := numero % 1000000;
+    END IF;
+
+    IF numero >= 1000 THEN
+        IF numero >= 2000 THEN
+            extenso_texto := extenso_texto || ' ' || extenso3(numero / 1000) || ' ' || mil;
+        ELSE
+            IF numero % 1000 = 0 THEN
+                extenso_texto := extenso_texto || ' um ' || mil;
+            ELSE
+                extenso_texto := extenso_texto || ' ' || mil || ' e ';
+            END IF;
+        END IF;
+        numero := numero % 1000;
+    END IF;
+
+    IF numero >= 100 THEN
+        IF numero % 100 = 0 THEN
+            extenso_texto := extenso_texto || ' ' || centenas[numero / 100] || ' ';
+        ELSE
+            extenso_texto := extenso_texto || ' ' || centenas[numero / 100] || ' e ';
+        END IF;
+        numero := numero % 100;
+    END IF;
+
+    IF numero >= 20 THEN
+        IF numero % 10 = 0 THEN
+            extenso_texto := extenso_texto || dezenas[numero / 10];
+        ELSE
+            extenso_texto := extenso_texto || dezenas[numero / 10] || ' e ';
+        END IF;
+        IF numero % 10 <> 0 THEN
+            extenso_texto := extenso_texto || unidades[numero % 10];
+        END IF;
+    ELSE
+        IF numero >= 10 THEN
+            extenso_texto := extenso_texto || especiais[numero - 10];
+        ELSE
+            IF numero > 0 THEN
+                extenso_texto := extenso_texto || unidades[numero];
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN extenso_texto;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT extenso3(1288549849769763234567892);
