@@ -30,7 +30,18 @@ BEGIN
         _contador := 0;
 
         FOREACH _palavra IN ARRAY _palavras LOOP
-            IF palavra = _palavra THEN
+            IF TRANSLATE(
+				LOWER(palavra), 
+				'áéíóúàèìòùãõâêîôôäëïöüçÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛÄËÏÖÜÇ',
+				'aeiouaeiouaoaeiooaeioucAEIOUAEIOUAOAEIOOAEIOUC'
+			) 
+			= 
+			TRANSLATE(
+				LOWER(_palavra),
+				'áéíóúàèìòùãõâêîôôäëïöüçÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛÄËÏÖÜÇ',
+				'aeiouaeiouaoaeiooaeioucAEIOUAEIOUAOAEIOOAEIOUC'
+			) 
+			THEN
                 _contador := _contador + 1;
                 _contador_geral := _contador_geral + _contador;
             END IF;
@@ -48,5 +59,8 @@ $corpo$
 LANGUAGE PLPGSQL;
 
 -- Exemplo de uso:
-SELECT * FROM contaPalavras(1, 'George');
+SELECT * FROM contaPalavras(1, 'george');
+
+
+
 
