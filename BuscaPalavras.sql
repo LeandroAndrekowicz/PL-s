@@ -1,11 +1,11 @@
 create or replace function 
     contaPalavras(
         in idTexto integer,
-        in palavra text,
+        inout palavra text,
+		out totalLinhas numeric,
 		out numLinha integer,
-        out totalPalavrasLinhas integer,
 		out ocorrencias integer,
-		out totalLinhas numeric
+		out totalPalavrasLinhas integer
     ) returns setof record
 AS 
     $corpo$
@@ -45,22 +45,51 @@ BEGIN
                 _contador := _contador + 1;
                 _contador_geral := _contador_geral + _contador;
             END IF;
-			numLinha := _i;
         END LOOP;
-		ocorrencias := _contador;
-		totalPalavrasLinhas := _contador_geral;
-
-        RETURN NEXT;
+		
     END LOOP;
-    
+		
+	ocorrencias = _contador_geral;
+	
+	
+	for _i in 1 .. array_upper(_linhas, 1) loop 
+		_contador = 0;
+        _linha = _linhas[_i];
+        _palavras = string_to_array(_linha, ' ');
+
+        FOREACH _palavra IN ARRAY _palavras LOOP
+
+            IF TRANSLATE(
+				LOWER(palavra), 
+				'áéíóúàèìòùãõâêîôôäëïöüçÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛÄËÏÖÜÇ',
+				'aeiouaeiouaoaeiooaeioucAEIOUAEIOUAOAEIOOAEIOUC'
+			) 
+			= 
+			TRANSLATE(
+				LOWER(_palavra),
+				'áéíóúàèìòùãõâêîôôäëïöüçÁÉÍÓÚÀÈÌÒÙÃÕÂÊÎÔÛÄËÏÖÜÇ',
+				'aeiouaeiouaoaeiooaeioucAEIOUAEIOUAOAEIOOAEIOUC'
+			) 
+			THEN
+                _contador := _contador + 1;
+                _contador_geral := _contador_geral + _contador;
+            END IF;
+
+        END LOOP;
+		numLinha := _i;
+		totalPalavrasLinhas = _contador;
+		
+		if totalPalavrasLinhas > 0 then
+			totalPalavrasLinhas = _contador;
+        	RETURN NEXT;
+		end if;
+    END LOOP;
+
     RETURN;
 END
 $corpo$
 LANGUAGE PLPGSQL;
 
 -- Exemplo de uso:
-SELECT * FROM contaPalavras(1, 'george');
-
-
-
+SELECT * FROM contaPalavras(2, 'que');
 
