@@ -1,0 +1,50 @@
+CREATE TABLE Address (
+    id UUID PRIMARY KEY,
+    city VARCHAR(255),
+    state VARCHAR(255),
+    country VARCHAR(255),
+    zipCode VARCHAR(20)
+);
+
+CREATE TABLE Supplier (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    contact VARCHAR(255),
+    addressId UUID REFERENCES Address(id),
+    cnpj VARCHAR(20)
+);
+
+CREATE TABLE Products (
+    id UUID PRIMARY KEY,
+    productName VARCHAR(255),
+    saleValue DECIMAL,
+    averageCost DECIMAL,
+    quantity INTEGER
+);
+
+CREATE TABLE Client (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255),
+    cpf VARCHAR(20),
+    addressId UUID REFERENCES Address(id)
+);
+
+CREATE TABLE Sale (
+    id UUID PRIMARY KEY,
+    productId UUID REFERENCES Products(id),
+    clientId UUID REFERENCES Client(id),
+    saleDate DATE,
+    amount INTEGER,
+    totalValue DECIMAL
+);
+
+CREATE TABLE Purchase (
+    id UUID PRIMARY KEY,
+    supplierId UUID REFERENCES Supplier(id),
+    productId UUID REFERENCES Products(id),
+    purchaseDate DATE,
+    amount INTEGER,
+    purchaseValue DECIMAL
+);
+
+
